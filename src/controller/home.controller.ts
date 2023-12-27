@@ -15,6 +15,7 @@ export class HomeController {
   @Get('/pull')
   async pull(): Promise<string> {
     await this.git.pull();
-    return 'ok';
+
+    return 'success';
   }
 }
