@@ -22,6 +22,6 @@ export class GitService {
     console.log('AT-[ stderr &&&&&********** ]', stderr);
     console.log('AT-[ stdout &&&&&********** ]', stdout);
 
-    return 'ok';
+    return stdout;
   }
 }
