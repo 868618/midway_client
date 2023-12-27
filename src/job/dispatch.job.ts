@@ -2,7 +2,7 @@ import { Job, IJob } from '@midwayjs/cron';
 import { Context, Inject } from '@midwayjs/core';
 
 @Job('syncJob', {
-  cronTime: '*/2 * * * * *', // 每隔 2s 执行
+  cronTime: '*/50 */30 * * * *', // 每隔 2s 执行
 })
 export class DispatchJob implements IJob {
   @Inject()
