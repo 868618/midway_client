@@ -15,7 +15,10 @@ export class GitService {
 
     const cwd = this.env.getAppDir();
 
-    const { stdout, stderr } = await execAsync('git pull', { cwd });
+    const { stdout, stderr } = await execAsync('git checkout . && git pull', {
+      cwd,
+    });
+
     console.log('AT-[ stderr &&&&&********** ]', stderr);
     console.log('AT-[ stdout &&&&&********** ]', stdout);
 
