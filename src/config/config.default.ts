@@ -15,6 +15,21 @@ export default {
       dispatchJobLogger: {
         fileLogName: 'dispatch.job.log',
       },
+
+      biliRunLogger: {
+        fileLogName: 'biliRunLogger.log',
+      },
+
+      xhsRunLogger: {
+        fileLogName: 'xhsRunLogger.log',
+      },
+    },
+  },
+
+  cache: {
+    store: 'memory',
+    options: {
+      ttl: null,
     },
   },
 } as MidwayConfig;

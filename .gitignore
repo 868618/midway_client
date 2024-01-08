@@ -14,3 +14,7 @@ run/
 .tsbuildinfo
 .tsbuildinfo.*
 *-lock.yaml
+.env
+.env.*
+.cache
+env.duty.ts
