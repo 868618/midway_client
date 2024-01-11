@@ -1,17 +1,20 @@
+// import path = require('path');
+
 import { Inject, Controller, Get, Headers } from '@midwayjs/core';
 import { Context } from '@midwayjs/koa';
+import { CacheManager } from '@midwayjs/cache';
+
 import { UserService } from '../service/user.service';
 import { NetDIskService } from '../service/netdisk.service';
 
 // import { desktop } from '../util';
 // import fs from 'fs-extra';
-import path = require('path');
-import { ITask } from '../interface';
-// import  from '../../env.duty'
+
+// import { ITask } from '../interface';
 
 @Controller('/api')
 export class APIController {
-  private dutyEnvPath = path.join(__dirname, '../../env.duty.ts');
+  // private dutyEnvPath = path.join(__dirname, '../../env.duty.ts');
 
   @Inject()
   ctx: Context;
@@ -21,6 +24,9 @@ export class APIController {
 
   @Inject()
   userService: UserService;
+
+  @Inject()
+  cacheManager: CacheManager;
 
   @Get('/download')
   async download(@Headers('url') url: string) {
@@ -35,10 +41,12 @@ export class APIController {
     // const dutyEnv = JSON.parse(fs.readFileSync(this.dutyEnvPath, 'utf8'));
     // console.log('AT-[ dutyEnv &&&&&********** ]', dutyEnv);
 
-    const { default: dutyEnv } = <{ default: ITask }>require(this.dutyEnvPath);
+    // const { default: dutyEnv } = <{ default: ITask }>require(this.dutyEnvPath);
 
-    console.log('dutyEnv.ipMap', dutyEnv.ipMap);
+    // console.log('dutyEnv.ipMap', dutyEnv.ipMap);
 
-    return 'shacha';
+    const tasks = await this.cacheManager.get('tasks');
+
+    return JSON.stringify(tasks);
   }
 }

@@ -1,19 +1,21 @@
 import path = require('path');
 
-import { Job, IJob } from '@midwayjs/cron';
 import { Context, Inject, MidwayInformationService } from '@midwayjs/core';
+
+import { Job, IJob } from '@midwayjs/cron';
+import { CacheManager } from '@midwayjs/cache';
 
 import * as schedule from 'node-schedule';
 import * as dayjs from 'dayjs';
 import * as glob from 'glob';
 import * as fs from 'fs-extra';
 import * as prettier from 'prettier';
+import { v4 as uuidv4 } from 'uuid';
 
 import { BilibiService } from '../service/bilibili.service';
-import { XHSService } from '../service/xhs.service';
 import { desktop, setNetInterface } from '../util';
 
-import { ITask } from '../interface';
+import { ITask, Tasks } from '../interface';
 
 @Job('dispatchJobBili', {
   cronTime: '2 0 1 * * *',
@@ -29,10 +31,10 @@ export class DispatchJobBili implements IJob {
   bili: BilibiService;
 
   @Inject()
-  xhs: XHSService;
+  informationService: MidwayInformationService;
 
   @Inject()
-  informationService: MidwayInformationService;
+  cacheManager: CacheManager;
 
   async updateDutyEnv() {
     const dutyEnv = fs.readFileSync(this.dutyEnvPath, 'utf8');
@@ -66,21 +68,19 @@ export class DispatchJobBili implements IJob {
 
     const { default: dutyEnv } = <{ default: ITask }>require(this.dutyEnvPath);
 
-    const tasks = dutyEnv.tasks.filter(({ date }) => dayjs().isBefore(date));
+    const tasks = dutyEnv.tasks.filter(({ date }) => dayjs().isBefore(date)).map(task => ({ ...task, uuid: uuidv4() }));
 
     const options = { windowsPathsNoEscape: true };
 
-    const engines = {
-      bili: this.bili,
-      xhs: this.xhs,
-    };
+    const engines = { bili: this.bili };
+
+    this.cacheManager.set('tasks', tasks);
 
     for (const task of tasks) {
-      const { date, platforms, folder } = task;
+      const { date, platforms, folder, uuid } = task;
 
       const patterns = {
         bili: path.join(desktop, `t_${folder}`, '*/', 'bili/b.json'),
-        xhs: path.join(desktop, `t_${folder}`, '*/', 'xhs/xhs.json'),
       };
 
       const time = new Date(date);
@@ -99,7 +99,15 @@ export class DispatchJobBili implements IJob {
 
           return pre
             .then(() => (source ? engine.run(source, signal) : Promise.reject(`${folder},${platform},该加料了`)))
-            .catch(this.ctx.logger.error);
+            .catch(this.ctx.logger.error)
+            .finally(async () => {
+              const currentTasks = <Tasks[]>await this.cacheManager.get('tasks');
+
+              this.cacheManager.set(
+                'tasks',
+                currentTasks.filter(i => i.uuid !== uuid)
+              );
+            });
         }, Promise.resolve());
 
         // 清理空目录

@@ -6,7 +6,7 @@ export class ResponseInterceptMiddleware implements IMiddleware<Context, NextFun
   resolve() {
     return async (ctx: Context, next: NextFunction) => {
       const result = await next();
-      console.log('AT-[ result &&&&&********** ]', result);
+
       return {
         code: 0,
         msg: 'OK',
@@ -16,7 +16,6 @@ export class ResponseInterceptMiddleware implements IMiddleware<Context, NextFun
   }
 
   match(ctx: Context) {
-    console.log('AT-[ ctx.path &&&&&********** ]', ctx.path);
     return ctx.path.indexOf('/api') !== -1;
   }
 }
