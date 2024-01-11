@@ -1,6 +1,6 @@
 import path = require('path');
 
-import { Inject, Controller, Get, Headers } from '@midwayjs/core';
+import { Inject, Controller, Get } from '@midwayjs/core';
 import { Context } from '@midwayjs/koa';
 import { CacheManager } from '@midwayjs/cache';
 
