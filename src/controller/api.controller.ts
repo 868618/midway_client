@@ -1,4 +1,4 @@
-// import path = require('path');
+import path = require('path');
 
 import { Inject, Controller, Get, Headers } from '@midwayjs/core';
 import { Context } from '@midwayjs/koa';
@@ -7,15 +7,11 @@ import { CacheManager } from '@midwayjs/cache';
 import { UserService } from '../service/user.service';
 import { NetDIskService } from '../service/netdisk.service';
 
-// import { desktop } from '../util';
-// import fs from 'fs-extra';
-
-// import { ITask } from '../interface';
+import { desktop } from '../util';
+import { glob } from 'glob';
 
 @Controller('/api')
 export class APIController {
-  // private dutyEnvPath = path.join(__dirname, '../../env.duty.ts');
-
   @Inject()
   ctx: Context;
 
@@ -33,20 +29,18 @@ export class APIController {
     // console.log('AT-[ url &&&&&********** ]', url);
     await this.netDIskService.download(url);
 
-    return { abc: 123 };
+    return 'ok';
   }
 
   @Get('/status')
   async status() {
-    // const dutyEnv = JSON.parse(fs.readFileSync(this.dutyEnvPath, 'utf8'));
-    // console.log('AT-[ dutyEnv &&&&&********** ]', dutyEnv);
-
-    // const { default: dutyEnv } = <{ default: ITask }>require(this.dutyEnvPath);
-
-    // console.log('dutyEnv.ipMap', dutyEnv.ipMap);
-
     const tasks = await this.cacheManager.get('tasks');
 
-    return JSON.stringify(tasks);
+    const list = glob.sync(path.join(desktop, 't_*/*/'), { windowsPathsNoEscape: true });
+
+    return {
+      tasks,
+      list,
+    };
   }
 }
