@@ -25,9 +25,9 @@ export class APIController {
   cacheManager: CacheManager;
 
   @Get('/download')
-  async download(@Headers('url') url: string) {
+  async download(url: string) {
     // console.log('AT-[ url &&&&&********** ]', url);
-    await this.netDIskService.download(url);
+    await this.netDIskService.download(decodeURIComponent(url));
 
     return 'ok';
   }
