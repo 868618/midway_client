@@ -13,13 +13,36 @@ export class NetDIskService {
   wseService: WSEStoreService;
 
   async download(url: string) {
-    const browserWSEndpoint = await this.wseService.getWsEndpoint('netdisk', true);
+    // const browserWSEndpoint = await this.wseService.getWsEndpoint('netdisk', true);
 
-    puppeteer.executablePath = () => __dirname;
+    // puppeteer.executablePath = () => __dirname;
 
-    const browser = await puppeteer.connect({
-      browserWSEndpoint,
+    // const browser = await puppeteer.connect({
+    //   browserWSEndpoint,
+    //   defaultViewport: null,
+    // });
+
+    const userDataDir = path.join('.cache');
+
+    const browser = await puppeteer.launch({
+      userDataDir,
+      headless: true,
+      channel: 'chrome',
       defaultViewport: null,
+      timeout: 0,
+
+      args: [
+        // '--disable-gpu',
+        '--disable-dev-shm-usage',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-notifications',
+        '--disable-extensions',
+      ],
     });
 
     return new Promise(async (resolve, reject) => {
