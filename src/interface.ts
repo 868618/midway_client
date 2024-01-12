@@ -25,5 +25,6 @@ export interface ITask {
   ipMap: {
     floder: string;
     ip: string;
+    isMaster: boolean;
   }[];
 }
