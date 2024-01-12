@@ -42,7 +42,8 @@ export class DispatchJobBili implements IJob {
     const realTime = dayjs().format('YYYY-MM-DD');
     // console.log('AT-[ realTime &&&&&********** ]', realTime);
 
-    const newStr = dutyEnv.replace(/2023-\d{2}-\d{2}/gi, realTime);
+    const newStr = dutyEnv.replace(/\d{4}-\d{2}-\d{2}/gi, realTime);
+
     console.log('AT-[ newStr &&&&&********** ]', newStr);
 
     const formatedStr = await prettier.format(newStr, {
