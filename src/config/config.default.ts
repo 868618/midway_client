@@ -17,12 +17,13 @@ export default {
       },
 
       biliRunLogger: {
+        dir: 'logs/bill',
         fileLogName: 'biliRunLogger.log',
       },
 
-      xhsRunLogger: {
-        fileLogName: 'xhsRunLogger.log',
-      },
+      // xhsRunLogger: {
+      //   fileLogName: 'xhsRunLogger.log',
+      // },
     },
   },
 
