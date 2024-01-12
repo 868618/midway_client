@@ -1,6 +1,6 @@
 import path = require('path');
 
-import { Inject, Controller, Get } from '@midwayjs/core';
+import { Inject, Controller, Get, Query } from '@midwayjs/core';
 import { Context } from '@midwayjs/koa';
 import { CacheManager } from '@midwayjs/cache';
 
@@ -25,11 +25,11 @@ export class APIController {
   cacheManager: CacheManager;
 
   @Get('/download')
-  async download(url: string) {
-    // console.log('AT-[ url &&&&&********** ]', url);
-    await this.netDIskService.download(decodeURIComponent(url));
+  async download(@Query('url') url: string) {
+    // console.log('AT-[ url &&&&&********** ]', decodeURIComponent(url));
+    const res = await this.netDIskService.download(decodeURIComponent(url));
 
-    return 'ok';
+    return res;
   }
 
   @Get('/status')

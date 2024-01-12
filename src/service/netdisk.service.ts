@@ -13,7 +13,7 @@ export class NetDIskService {
   wseService: WSEStoreService;
 
   async download(url: string) {
-    const browserWSEndpoint = await this.wseService.getWsEndpoint('netdisk', false);
+    const browserWSEndpoint = await this.wseService.getWsEndpoint('netdisk', true);
 
     puppeteer.executablePath = () => __dirname;
 
@@ -22,43 +22,59 @@ export class NetDIskService {
       defaultViewport: null,
     });
 
-    const cdpSession = await browser.target().createCDPSession();
+    return new Promise(async (resolve, reject) => {
+      const page = await browser.newPage();
 
-    const downloadPath = path.join(desktop, 'download');
+      const cdpSession = await page.target().createCDPSession();
 
-    fs.ensureDirSync(downloadPath);
+      const downloadPath = path.join(desktop, 'download');
 
-    await cdpSession.send('Page.setDownloadBehavior', {
-      behavior: 'allow', //允许所有下载请求
-      downloadPath, //设置下载路径
+      fs.ensureDirSync(downloadPath);
+
+      await cdpSession.send('Page.setDownloadBehavior', {
+        behavior: 'allow', //允许所有下载请求
+        downloadPath, //设置下载路径
+      });
+
+      // 监听页面的 response 事件
+      page.on('response', async response => {
+        const url = response.request().url();
+
+        if (url.includes('dl-uf-zb.pds.uc.cn')) {
+          const contentDisposition = response.headers()['content-disposition'];
+
+          if (contentDisposition) {
+            const filename = contentDisposition.split("filename*=utf-8''")[1];
+
+            const watcher = fs.watch(downloadPath);
+
+            watcher.on('change', (event, f) => {
+              if (f === filename) {
+                resolve('下载完毕');
+                watcher.close();
+
+                page.close();
+              }
+            });
+
+            // fs.watch(downloadPath, );
+          }
+        }
+      });
+
+      page.on('error', error => {
+        reject(error);
+      });
+
+      await page.goto(url, { waitUntil: 'load' });
+
+      /**
+       * 点击下载
+       */
+
+      const element = await page.waitForSelector('span::-p-text(全部下载)');
+
+      element.click();
     });
-
-    // cdpSession.on(
-    //   'Browser.downloadProgress',
-    //   (event: { guid: string; totalBytes: number; receivedBytes: number; state: string }): void => {
-    //     console.log(event);
-    //     // if (event.state === 'completed' || event.state === 'canceled') {
-    //     // }
-    //   }
-    // );
-
-    const page = await browser.newPage();
-
-    // 监听页面的 response 事件
-    page.on('response', async response => {
-      console.log('AT-[ response &&&&&********** ]', response);
-      const contentDisposition = response.headers()['content-disposition'];
-      console.log('AT-[ contentDisposition &&&&&********** ]', contentDisposition);
-    });
-
-    await page.goto(url, { waitUntil: 'load' });
-
-    /**
-     * 点击下载
-     */
-
-    const element = await page.waitForSelector('span::-p-text(全部下载)');
-
-    element.click();
   }
 }

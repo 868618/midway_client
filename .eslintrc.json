@@ -3,5 +3,8 @@
   "ignorePatterns": ["node_modules", "dist", "test", "jest.config.js", "typings"],
   "env": {
     "jest": true
+  },
+  "rules": {
+    "no-async-promise-executor": 0
   }
 }

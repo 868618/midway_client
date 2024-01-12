@@ -40,6 +40,7 @@ export class DispatchJobBili implements IJob {
     const dutyEnv = fs.readFileSync(this.dutyEnvPath, 'utf8');
 
     const realTime = dayjs().format('YYYY-MM-DD');
+    console.log('AT-[ realTime &&&&&********** ]', realTime);
 
     const newStr = dutyEnv.replace(/2023-\d{2}-\d{2}/gi, realTime);
 
