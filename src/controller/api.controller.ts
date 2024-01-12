@@ -29,6 +29,11 @@ export class APIController {
     // console.log('AT-[ url &&&&&********** ]', decodeURIComponent(url));
     const res = await this.netDIskService.download(decodeURIComponent(url));
 
+    if (Buffer.isBuffer(res)) {
+      this.ctx.set('Content-Type', 'image/jpeg');
+      this.ctx.response.body = res;
+    }
+
     return res;
   }
 

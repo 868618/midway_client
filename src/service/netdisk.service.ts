@@ -13,91 +13,95 @@ export class NetDIskService {
   wseService: WSEStoreService;
 
   async download(url: string) {
-    // const browserWSEndpoint = await this.wseService.getWsEndpoint('netdisk', true);
+    const browserWSEndpoint = await this.wseService.getWsEndpoint('netdisk', true);
 
-    // puppeteer.executablePath = () => __dirname;
-
-    // const browser = await puppeteer.connect({
-    //   browserWSEndpoint,
-    //   defaultViewport: null,
-    // });
-
-    const userDataDir = path.join('.cache');
-
-    const browser = await puppeteer.launch({
-      userDataDir,
-      headless: true,
-      channel: 'chrome',
+    const browser = await puppeteer.connect({
+      browserWSEndpoint,
       defaultViewport: null,
-      timeout: 0,
-
-      args: [
-        // '--disable-gpu',
-        '--disable-dev-shm-usage',
-        '--no-first-run',
-        '--no-zygote',
-        '--single-process',
-
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-notifications',
-        '--disable-extensions',
-      ],
     });
 
+    const page = await browser.newPage();
+
+    const cdpSession = await page.target().createCDPSession();
+
+    const downloadPath = path.join(desktop, 'download');
+
+    fs.ensureDirSync(downloadPath);
+
+    await cdpSession.send('Page.setDownloadBehavior', {
+      behavior: 'allow', //允许所有下载请求
+      downloadPath, //设置下载路径
+    });
+
+    await page.goto(url, { waitUntil: 'load' });
+
+    await Promise.all([
+      page.addScriptTag({
+        url: 'https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js',
+        id: 'jquery',
+      }),
+
+      page.waitForFunction(() => window.jQuery !== undefined, { timeout: 0 }),
+    ]);
+
+    await page.waitForTimeout(2000);
+
     return new Promise(async (resolve, reject) => {
-      const page = await browser.newPage();
+      page.on('error', reject);
+      // const loginBtn = await page.waitForSelector('div::-p-text(登录UC网盘)');
 
-      const cdpSession = await page.target().createCDPSession();
+      // const loginBtn = await page.evaluateHandle(() => $('div:contains("登录UC网盘")').get(0));
+      const loginBtn = await page.evaluate(() => $('.text:contains(登录UC网盘)').length);
+      console.log('AT-[ loginBtn &&&&&********** ]', loginBtn);
 
-      const downloadPath = path.join(desktop, 'download');
+      if (loginBtn) {
+        await page.locator('div::-p-text(登录UC网盘)').wait();
 
-      fs.ensureDirSync(downloadPath);
+        await page.locator('div::-p-text(登录UC网盘)').click();
 
-      await cdpSession.send('Page.setDownloadBehavior', {
-        behavior: 'allow', //允许所有下载请求
-        downloadPath, //设置下载路径
-      });
+        // const qrCode = await page.waitForSelector('.iframeShow');
 
-      // 监听页面的 response 事件
-      page.on('response', async response => {
-        const url = response.request().url();
+        await page.waitForSelector('.iframeShow');
 
-        if (url.includes('dl-uf-zb.pds.uc.cn')) {
-          const contentDisposition = response.headers()['content-disposition'];
+        await page.waitForTimeout(2000);
 
-          if (contentDisposition) {
-            const filename = contentDisposition.split("filename*=utf-8''")[1];
+        // const clip = await qrCode.boundingBox();
 
-            const watcher = fs.watch(downloadPath);
+        // const binary = await page.screenshot({ encoding: 'binary', clip });
 
-            watcher.on('change', (event, f) => {
-              if (f === filename) {
-                resolve('下载完毕');
-                watcher.close();
+        const binary = await page.screenshot({ encoding: 'binary' });
 
-                page.close();
-              }
-            });
+        resolve(binary);
+      } else {
+        // 监听页面的 response 事件
+        page.on('response', async response => {
+          const url = response.request().url();
 
-            // fs.watch(downloadPath, );
+          if (url.includes('pds.uc.cn')) {
+            const contentDisposition = response.headers()['content-disposition'];
+
+            if (contentDisposition) {
+              const filename = decodeURIComponent(contentDisposition.split("filename*=utf-8''")[1]);
+
+              const watcher = fs.watch(downloadPath);
+
+              watcher.on('change', (event, f) => {
+                if (f === filename) {
+                  console.log('下载成功');
+
+                  watcher.close();
+
+                  page.close();
+                }
+              });
+            }
           }
-        }
-      });
+        });
 
-      page.on('error', error => {
-        reject(error);
-      });
+        await page.locator('.task-footer-down').click();
 
-      await page.goto(url, { waitUntil: 'load' });
-
-      /**
-       * 点击下载
-       */
-
-      const element = await page.waitForSelector('span::-p-text(全部下载)');
-
-      element.click();
+        resolve('ok了');
+      }
     });
   }
 }

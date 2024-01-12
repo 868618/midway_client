@@ -60,11 +60,11 @@ export class BilibiService {
       const loginBtn = await page.$('.header-login-entry::-p-text("登录")');
 
       if (loginBtn) {
-        biliLog.info('未登录', '点击登录按钮，唤起登录框', '等待15s');
+        biliLog.warn(signal, '未登录', '点击登录按钮，唤起登录框', '等待15s');
         await loginBtn.click();
         await page.waitForTimeout(15000);
       } else {
-        biliLog.warn(signal, '已经登录', '结束登录状态循环监听');
+        biliLog.info(signal, '已经登录', '结束登录状态循环监听');
         break;
       }
     }

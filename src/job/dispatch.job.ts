@@ -95,7 +95,7 @@ export class DispatchJobBili implements IJob {
 
           const [source] = glob.sync(patterns[platform], options);
 
-          const signal = ip + folder;
+          const signal = ip + '/' + folder;
 
           return pre
             .then(() => (source ? engine.run(source, signal) : Promise.reject(`${folder},${platform},该加料了`)))

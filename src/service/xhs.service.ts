@@ -51,12 +51,9 @@ export class XHSService {
 
     // const [page] = await browser.pages();
 
-    await page.goto(
-      'https://creator.xiaohongshu.com/publish/publish?source=official',
-      {
-        waitUntil: 'load',
-      }
-    );
+    await page.goto('https://creator.xiaohongshu.com/publish/publish?source=official', {
+      waitUntil: 'load',
+    });
 
     await Promise.all([
       page.addScriptTag({
@@ -105,11 +102,7 @@ export class XHSService {
 
     await page.waitForTimeout(3000);
 
-    xhsTrace.info(
-      '~~~',
-      '若出现：你还有上次未发布的图文笔记，是否继续编辑？',
-      '点击放弃'
-    );
+    xhsTrace.info('~~~', '若出现：你还有上次未发布的图文笔记，是否继续编辑？', '点击放弃');
 
     await page.waitForFunction(() => $('.give-up').click());
 
@@ -117,9 +110,7 @@ export class XHSService {
 
     xhsTrace.info('8、', '开始上传', '然后等待3s');
 
-    const uploadInput = await page.evaluateHandle(
-      () => <Element>$('.upload-input').get(0)
-    );
+    const uploadInput = await page.evaluateHandle(() => <Element>$('.upload-input').get(0));
 
     const [imagesFileChooser] = await Promise.all([
       page.waitForFileChooser({
@@ -129,9 +120,7 @@ export class XHSService {
       uploadInput?.click(),
     ]);
 
-    const imagesPath = json.pngList
-      .sort()
-      .map((i: string) => i.replace('/Users/kenny/Desktop', desktop));
+    const imagesPath = json.pngList.sort().map((i: string) => i.replace('/Users/kenny/Desktop', desktop));
 
     await imagesFileChooser?.accept([...imagesPath]);
 
