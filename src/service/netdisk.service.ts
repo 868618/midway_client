@@ -48,10 +48,9 @@ export class NetDIskService {
 
     return new Promise(async (resolve, reject) => {
       page.on('error', reject);
-      // const loginBtn = await page.waitForSelector('div::-p-text(登录UC网盘)');
 
-      // const loginBtn = await page.evaluateHandle(() => $('div:contains("登录UC网盘")').get(0));
       const loginBtn = await page.evaluate(() => $('.text:contains(登录UC网盘)').length);
+
       console.log('AT-[ loginBtn &&&&&********** ]', loginBtn);
 
       if (loginBtn) {
@@ -59,15 +58,9 @@ export class NetDIskService {
 
         await page.locator('div::-p-text(登录UC网盘)').click();
 
-        // const qrCode = await page.waitForSelector('.iframeShow');
-
         await page.waitForSelector('.iframeShow');
 
-        await page.waitForTimeout(2000);
-
-        // const clip = await qrCode.boundingBox();
-
-        // const binary = await page.screenshot({ encoding: 'binary', clip });
+        await page.waitForTimeout(5000);
 
         const binary = await page.screenshot({ encoding: 'binary' });
 
