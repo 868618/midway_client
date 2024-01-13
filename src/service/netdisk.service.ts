@@ -98,7 +98,10 @@ export class NetDIskService {
                   const extractedDir = glob.sync(path.join(tmpDir, '*/*/'), {
                     windowsPathsNoEscape: true,
                     ignore: {
-                      ignored: p => p.name.includes('__MACOSX'),
+                      ignored: p => {
+                        console.log('AT-[ p.name &&&&&********** ]', p.name);
+                        return p.name.includes('__MACOSX');
+                      },
                     },
                   });
 
