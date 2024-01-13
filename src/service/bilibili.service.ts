@@ -36,7 +36,7 @@ export class BilibiService {
 
     biliLog.info('2、切换到', signal, '浏览器缓存目录', '启动浏览器实例');
 
-    const browserWSEndpoint = await this.wSEStoreService.getWsEndpoint('test');
+    const browserWSEndpoint = await this.wSEStoreService.getWsEndpoint(signal);
 
     const browser = await puppeteer.connect({
       browserWSEndpoint,
