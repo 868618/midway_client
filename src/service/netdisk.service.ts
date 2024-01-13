@@ -98,18 +98,17 @@ export class NetDIskService {
                   const extractedDir = glob.sync(path.join(tmpDir, '*/*/'), {
                     windowsPathsNoEscape: true,
                     ignore: {
-                      ignored: p => {
-                        console.log('AT-[ p.name &&&&&********** ]', p.name);
-                        return p.name.includes('__MACOSX');
-                      },
+                      ignored: p => p.name.includes('__MACOSX'),
                     },
                   });
 
                   extractedDir.forEach(dir => {
-                    fs.moveSync(dir, dir.replace(tmpDir, desktop), { overwrite: true });
+                    if (!dir.includes('__MACOSX')) {
+                      fs.moveSync(dir, dir.replace(tmpDir, desktop), { overwrite: true });
+                    }
                   });
 
-                  fs.rmdirSync(tmpDir, { recursive: true });
+                  fs.rm(tmpDir, { recursive: true });
 
                   watcher.close();
 
