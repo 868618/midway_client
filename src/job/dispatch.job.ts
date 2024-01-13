@@ -103,12 +103,7 @@ export class DispatchJobBili implements IJob {
               // .then(() => (source ? engine.run(source, signal) : Promise.reject(`${folder},${platform},该加料了`)))
               .then(() =>
                 source
-                  ? pRetry(engine.run.bind(null, source, signal), {
-                      retries: 2,
-                      onFailedAttempt: error => {
-                        console.log('AT-[ puppeter 错误信息 ]', error);
-                      },
-                    })
+                  ? pRetry(engine.run.bind(null, source, signal), { retries: 2 })
                   : Promise.reject(`${folder},${platform},该加料了`)
               )
               .catch(this.ctx.logger.error)
