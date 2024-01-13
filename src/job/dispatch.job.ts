@@ -18,8 +18,6 @@ import { desktop, setNetInterface } from '../util';
 
 import { ITask, Tasks } from '../interface';
 
-import * as AdmZip from 'adm-zip';
-
 @Job('dispatchJobBili', {
   cronTime: '2 0 1 * * *',
   runOnInit: true,
@@ -67,12 +65,6 @@ export class DispatchJobBili implements IJob {
   }
 
   async onTick() {
-    const zipFilePath = path.join(desktop, '1-2.zip');
-
-    const zip = new AdmZip(zipFilePath);
-
-    zip.extractAllTo(path.join(desktop, '999'), true);
-
     this.updateDutyEnv();
 
     const { default: dutyEnv } = <{ default: ITask }>require(this.dutyEnvPath);
