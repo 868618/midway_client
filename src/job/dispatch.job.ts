@@ -11,12 +11,14 @@ import * as glob from 'glob';
 import * as fs from 'fs-extra';
 import * as prettier from 'prettier';
 import { v4 as uuidv4 } from 'uuid';
-import pRetry from 'p-retry';
+// import pRetry from 'p-retry';
 
 import { BilibiService } from '../service/bilibili.service';
 import { desktop, setNetInterface } from '../util';
 
 import { ITask, Tasks } from '../interface';
+
+import * as AdmZip from 'adm-zip';
 
 @Job('dispatchJobBili', {
   cronTime: '2 0 1 * * *',
@@ -65,6 +67,12 @@ export class DispatchJobBili implements IJob {
   }
 
   async onTick() {
+    const zipFilePath = path.join(desktop, '1-2.zip');
+
+    const zip = new AdmZip(zipFilePath);
+
+    zip.extractAllTo(path.join(desktop, '999'), true);
+
     this.updateDutyEnv();
 
     const { default: dutyEnv } = <{ default: ITask }>require(this.dutyEnvPath);
@@ -92,6 +100,7 @@ export class DispatchJobBili implements IJob {
         setNetInterface(ip);
 
         await platforms.reduce(async (pre, platform) => {
+          console.log('AT-[ platform &&&&&********** ]', platform);
           const engine = engines[platform];
 
           const [source] = glob.sync(patterns[platform], options);
@@ -100,12 +109,12 @@ export class DispatchJobBili implements IJob {
 
           return (
             pre
-              // .then(() => (source ? engine.run(source, signal) : Promise.reject(`${folder},${platform},该加料了`)))
-              .then(() =>
-                source
-                  ? pRetry(engine.run.bind(null, source, signal), { retries: 2 })
-                  : Promise.reject(`${folder},${platform},该加料了`)
-              )
+              .then(() => (source ? engine.run(source, signal) : Promise.reject(`${folder},${platform},该加料了`)))
+              // .then(() =>
+              //   source
+              //     ? pRetry(engine.run.bind(null, source, signal), { retries: 2 })
+              //     : Promise.reject(`${folder},${platform},该加料了`)
+              // )
               .catch(this.ctx.logger.error)
               .finally(async () => {
                 const currentTasks = <Tasks[]>await this.cacheManager.get('tasks');

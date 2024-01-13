@@ -4,6 +4,9 @@ import * as fs from 'fs-extra';
 import { Provide, Inject } from '@midwayjs/core';
 import { WSEStoreService } from './wse.store.service';
 import puppeteer from 'puppeteer-core';
+import * as AdmZip from 'adm-zip';
+import * as os from 'os';
+import * as glob from 'glob';
 
 import { desktop } from '../util';
 
@@ -21,17 +24,6 @@ export class NetDIskService {
     });
 
     const page = await browser.newPage();
-
-    const cdpSession = await page.target().createCDPSession();
-
-    const downloadPath = path.join(desktop, 'download');
-
-    fs.ensureDirSync(downloadPath);
-
-    await cdpSession.send('Page.setDownloadBehavior', {
-      behavior: 'allow', //允许所有下载请求
-      downloadPath, //设置下载路径
-    });
 
     await page.goto(url, { waitUntil: 'load' });
 
@@ -66,6 +58,17 @@ export class NetDIskService {
 
         resolve(binary);
       } else {
+        const cdpSession = await page.target().createCDPSession();
+
+        const downloadPath = path.join(desktop, 'download');
+
+        fs.ensureDirSync(downloadPath);
+
+        await cdpSession.send('Page.setDownloadBehavior', {
+          behavior: 'allow', //允许所有下载请求
+          downloadPath, //设置下载路径
+        });
+
         // 监听页面的 response 事件
         page.on('response', async response => {
           const url = response.request().url();
@@ -81,6 +84,27 @@ export class NetDIskService {
               watcher.on('change', (event, f) => {
                 if (f === filename) {
                   console.log('下载成功');
+
+                  const zipFilePath = path.join(downloadPath, filename);
+
+                  const zip = new AdmZip(zipFilePath);
+
+                  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zip-'));
+
+                  zip.extractAllTo(tmpDir, true);
+
+                  const extractedDir = glob.sync(path.join(tmpDir, '*/*/'), {
+                    windowsPathsNoEscape: true,
+                    ignore: {
+                      ignored: p => p.name.includes('__MACOSX'),
+                    },
+                  });
+
+                  extractedDir.forEach(dir => {
+                    fs.moveSync(dir, dir.replace(tmpDir, desktop), { overwrite: true });
+                  });
+
+                  fs.rmdirSync(tmpDir);
 
                   watcher.close();
 
