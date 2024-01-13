@@ -60,7 +60,9 @@ export class NetDIskService {
       } else {
         const cdpSession = await page.target().createCDPSession();
 
-        const downloadPath = path.join(desktop, 'download');
+        // const downloadPath = path.join(desktop, 'download');
+
+        const downloadPath = fs.mkdtempSync(path.join(os.tmpdir(), 'zip-'));
 
         fs.ensureDirSync(downloadPath);
 
@@ -89,7 +91,7 @@ export class NetDIskService {
 
                   const zip = new AdmZip(zipFilePath);
 
-                  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zip-'));
+                  const tmpDir = path.join(downloadPath, 'tmpDir');
 
                   zip.extractAllTo(tmpDir, true);
 
@@ -104,7 +106,7 @@ export class NetDIskService {
                     fs.moveSync(dir, dir.replace(tmpDir, desktop), { overwrite: true });
                   });
 
-                  fs.rmdirSync(tmpDir);
+                  fs.rmdirSync(tmpDir, { recursive: true });
 
                   watcher.close();
 
