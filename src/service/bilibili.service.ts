@@ -47,9 +47,11 @@ export class BilibiService {
 
     const page = await browser.newPage();
 
-    await page.goto('https://www.bilibili.com/', {
-      waitUntil: 'load',
+    page.on('error', error => {
+      console.error('AT-[ error &&&&&********** ]', error);
     });
+
+    await page.goto('https://www.bilibili.com/', { waitUntil: 'load' });
 
     /**
      * 循5秒环检测登录状态

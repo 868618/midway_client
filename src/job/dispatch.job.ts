@@ -11,6 +11,7 @@ import * as glob from 'glob';
 import * as fs from 'fs-extra';
 import * as prettier from 'prettier';
 import { v4 as uuidv4 } from 'uuid';
+import pRetry from 'p-retry';
 
 import { BilibiService } from '../service/bilibili.service';
 import { desktop, setNetInterface } from '../util';
@@ -97,17 +98,29 @@ export class DispatchJobBili implements IJob {
 
           const signal = ip + '/' + folder;
 
-          return pre
-            .then(() => (source ? engine.run(source, signal) : Promise.reject(`${folder},${platform},该加料了`)))
-            .catch(this.ctx.logger.error)
-            .finally(async () => {
-              const currentTasks = <Tasks[]>await this.cacheManager.get('tasks');
+          return (
+            pre
+              // .then(() => (source ? engine.run(source, signal) : Promise.reject(`${folder},${platform},该加料了`)))
+              .then(() =>
+                source
+                  ? pRetry(engine.run.bind(null, source, signal), {
+                      retries: 2,
+                      onFailedAttempt: error => {
+                        console.log('AT-[ puppeter 错误信息 ]', error);
+                      },
+                    })
+                  : Promise.reject(`${folder},${platform},该加料了`)
+              )
+              .catch(this.ctx.logger.error)
+              .finally(async () => {
+                const currentTasks = <Tasks[]>await this.cacheManager.get('tasks');
 
-              this.cacheManager.set(
-                'tasks',
-                currentTasks.filter(i => i.uuid !== uuid)
-              );
-            });
+                this.cacheManager.set(
+                  'tasks',
+                  currentTasks.filter(i => i.uuid !== uuid)
+                );
+              })
+          );
         }, Promise.resolve());
 
         // 清理空目录
