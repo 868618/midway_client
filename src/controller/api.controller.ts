@@ -44,11 +44,11 @@ export class APIController {
 
     const list = glob.sync(path.join(desktop, 't_*/*/'), { windowsPathsNoEscape: true });
 
-    list.map(item => item.replace(desktop, ''));
+    list.map(item => item.replace('\\', '/').replace(desktop.replace('\\', '/'), ''));
 
     // console.log('lodash', lodash);
     const group = lodash.groupBy(
-      list.map(item => item.replace(desktop, '')),
+      list.map(item => item.replace('\\', '/').replace(desktop.replace('\\', '/'), '')),
       path.dirname
     );
 

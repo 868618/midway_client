@@ -33,7 +33,7 @@ export class NetDIskService {
         id: 'jquery',
       }),
 
-      page.waitForFunction(() => window.jQuery !== undefined, { timeout: 0 }),
+      page.waitForFunction(() => window['jQuery'] !== undefined, { timeout: 0 }),
     ]);
 
     await page.waitForTimeout(2000);
