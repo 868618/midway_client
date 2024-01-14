@@ -9,6 +9,7 @@ import { NetDIskService } from '../service/netdisk.service';
 
 import { desktop } from '../util';
 import { glob } from 'glob';
+import * as lodash from 'lodash';
 
 @Controller('/api')
 export class APIController {
@@ -43,9 +44,18 @@ export class APIController {
 
     const list = glob.sync(path.join(desktop, 't_*/*/'), { windowsPathsNoEscape: true });
 
+    list.map(item => item.replace(desktop, ''));
+
+    // console.log('lodash', lodash);
+    const group = lodash.groupBy(
+      list.map(item => item.replace(desktop, '')),
+      path.dirname
+    );
+
     return {
       tasks,
       list,
+      group,
     };
   }
 }
