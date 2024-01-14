@@ -35,6 +35,8 @@ export default {
   },
 
   cors: {
-    credentials: false,
+    // credentials: false,
+    origin: '*',
+    allowHeaders: '*',
   },
 } as MidwayConfig;
