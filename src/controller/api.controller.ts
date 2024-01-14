@@ -9,10 +9,14 @@ import { NetDIskService } from '../service/netdisk.service';
 
 import { desktop } from '../util';
 import { glob } from 'glob';
-import * as lodash from 'lodash';
+// import * as lodash from 'lodash';
+
+import { ITask } from '../interface';
 
 @Controller('/api')
 export class APIController {
+  private dutyEnvPath = path.join(__dirname, '../../env.duty.ts');
+
   @Inject()
   ctx: Context;
 
@@ -42,18 +46,21 @@ export class APIController {
   async status() {
     const tasks = await this.cacheManager.get('tasks');
 
-    const list = glob.sync(path.join(desktop, 't_*/*/'), { windowsPathsNoEscape: true });
+    const options = { windowsPathsNoEscape: true };
 
-    // console.log('lodash', lodash);
-    const group = lodash.groupBy(
-      list.map(item => item.replace(/\\/gi, '/').replace(desktop.replace(/\\/gi, '/'), '')),
-      path.dirname
-    );
+    const list = glob.sync(path.join(desktop, 't_*/*/'), options);
+
+    const { default: dutyEnv } = <{ default: ITask }>require(this.dutyEnvPath);
+
+    const entries = dutyEnv.ipMap.map(({ floder }) => [
+      floder,
+      glob.sync(path.join(desktop, `t_${floder}/*/`), options),
+    ]);
 
     return {
       tasks,
       list,
-      group,
+      group: Object.fromEntries(entries),
     };
   }
 }
