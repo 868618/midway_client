@@ -13,6 +13,8 @@ import { DispatchJobBili } from './job/dispatch.job';
 
 import * as cache from '@midwayjs/cache';
 
+import * as crossDomain from '@midwayjs/cross-domain';
+
 @Configuration({
   imports: [
     koa,
@@ -23,6 +25,7 @@ import * as cache from '@midwayjs/cache';
     },
     cron,
     cache,
+    crossDomain,
   ],
   importConfigs: [join(__dirname, './config')],
 })

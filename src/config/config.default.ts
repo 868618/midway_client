@@ -33,4 +33,8 @@ export default {
       ttl: null,
     },
   },
+
+  cors: {
+    credentials: false,
+  },
 } as MidwayConfig;
