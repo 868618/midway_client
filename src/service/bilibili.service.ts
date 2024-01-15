@@ -36,13 +36,36 @@ export class BilibiService {
 
     biliLog.info('2、切换到', signal, '浏览器缓存目录', '启动浏览器实例');
 
-    const browserWSEndpoint = await this.wSEStoreService.getWsEndpoint(signal);
+    // const browserWSEndpoint = await this.wSEStoreService.getWsEndpoint(signal);
 
-    console.log('AT-[ browserWSEndpoint &&&&&********** ]', browserWSEndpoint);
+    // console.log('AT-[ browserWSEndpoint &&&&&********** ]', browserWSEndpoint);
 
-    const browser = await puppeteer.connect({
-      browserWSEndpoint,
+    // const browser = await puppeteer.connect({
+    //   browserWSEndpoint,
+    //   defaultViewport: null,
+    // });
+
+    const userDataDir = path.join('.cache', signal);
+
+    const browser = await puppeteer.launch({
+      userDataDir,
+      headless: false,
+      channel: 'chrome',
       defaultViewport: null,
+      timeout: 0,
+
+      args: [
+        // '--disable-gpu',
+        // '--disable-dev-shm-usage',
+        '--no-first-run',
+        '--no-zygote',
+        // '--single-process',
+
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-notifications',
+        '--disable-extensions',
+      ],
     });
 
     biliLog.info('3、打开：B站首页');
