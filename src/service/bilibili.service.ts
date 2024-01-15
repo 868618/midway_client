@@ -195,11 +195,7 @@ export class BilibiService {
 
       await p.waitForTimeout(2000);
 
-      const [coverImageFileChooser] = await Promise.all([
-        p.waitForFileChooser({ timeout: 0 }),
-
-        coverUploadBtn?.click(),
-      ]);
+      const [coverImageFileChooser] = await Promise.all([p.waitForFileChooser({ timeout: 0 }), coverUploadBtn?.click()]);
 
       const coverPngPath = json.coverPngPath;
       await coverImageFileChooser?.accept([coverPngPath]);

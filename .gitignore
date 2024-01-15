@@ -18,3 +18,4 @@ run/
 .env.*
 .cache
 env.duty.ts
+src/database

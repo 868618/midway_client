@@ -14,6 +14,7 @@ import { DispatchJobBili } from './job/dispatch.job';
 import * as cache from '@midwayjs/cache';
 
 import * as crossDomain from '@midwayjs/cross-domain';
+import { SqliteService } from './service/sqlite.singleton.service';
 
 @Configuration({
   imports: [
@@ -26,6 +27,7 @@ import * as crossDomain from '@midwayjs/cross-domain';
     cron,
     cache,
     crossDomain,
+    // sequelize,
   ],
   importConfigs: [join(__dirname, './config')],
 })
@@ -42,12 +44,17 @@ export class MainConfiguration {
   @Inject()
   cronFramework: cron.Framework;
 
+  @Inject()
+  sqliteService: SqliteService;
+
   async onReady() {
     // add middleware
     this.app.useMiddleware([ReportMiddleware, ResponseInterceptMiddleware]);
 
     // add filter
     // this.app.useFilter([NotFoundFilter, DefaultErrorFilter]);
+
+    this.sqliteService.init();
   }
 
   async onServerReady() {

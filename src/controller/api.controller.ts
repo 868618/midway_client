@@ -48,18 +48,15 @@ export class APIController {
 
     const options = { windowsPathsNoEscape: true };
 
-    const list = glob.sync(path.join(desktop, 't_*/*/'), options);
+    // const list = glob.sync(path.join(desktop, 't_*/*/'), options);
 
     const { default: dutyEnv } = <{ default: ITask }>require(this.dutyEnvPath);
 
-    const entries = dutyEnv.ipMap.map(({ floder }) => [
-      floder,
-      glob.sync(path.join(desktop, `t_${floder}/*/`), options),
-    ]);
+    const entries = dutyEnv.ipMap.map(({ floder }) => [floder, glob.sync(path.join(desktop, `t_${floder}/*/`), options).map(i => i.replace(desktop, ''))]);
 
     return {
       tasks,
-      list,
+      // list,
       group: Object.fromEntries(entries),
     };
   }
