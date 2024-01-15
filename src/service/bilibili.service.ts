@@ -38,6 +38,8 @@ export class BilibiService {
 
     const browserWSEndpoint = await this.wSEStoreService.getWsEndpoint(signal);
 
+    console.log('AT-[ browserWSEndpoint &&&&&********** ]', browserWSEndpoint);
+
     const browser = await puppeteer.connect({
       browserWSEndpoint,
       defaultViewport: null,

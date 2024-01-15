@@ -92,7 +92,7 @@ export class DispatchJobBili implements IJob {
         setNetInterface(ip);
 
         await platforms.reduce(async (pre, platform) => {
-          console.log('AT-[ platform &&&&&********** ]', platform);
+          // console.log('AT-[ platform &&&&&********** ]', platform);
           const engine = engines[platform];
 
           const [source] = glob.sync(patterns[platform], options);
@@ -107,7 +107,9 @@ export class DispatchJobBili implements IJob {
               //     ? pRetry(engine.run.bind(null, source, signal), { retries: 2 })
               //     : Promise.reject(`${folder},${platform},该加料了`)
               // )
-              .catch(this.ctx.logger.error)
+              .catch(error => {
+                this.ctx.logger.error(error);
+              })
               .finally(async () => {
                 const currentTasks = <Tasks[]>await this.cacheManager.get('tasks');
 
