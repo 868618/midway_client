@@ -5,7 +5,7 @@ import fs = require('fs-extra');
 import { Provide, Inject, Context } from '@midwayjs/core';
 import puppeteer, { type Browser, Page } from 'puppeteer-core';
 import { CacheManager } from '@midwayjs/cache';
-import { WSEStoreService } from './wse.store.service';
+// import { WSEStoreService } from './wse.store.service';
 // import { killChrome } from '../util';
 
 @Provide()
@@ -17,8 +17,7 @@ export class BilibiService {
   cache: CacheManager;
 
   @Inject()
-  wSEStoreService: WSEStoreService;
-
+  // wSEStoreService: WSEStoreService;
   async run(resource: string, signal: string) {
     await this.cache.set('jobStatus', 'bili');
 
