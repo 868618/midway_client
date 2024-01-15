@@ -32,7 +32,7 @@ export class WSEStoreService {
           '--disable-dev-shm-usage',
           '--no-first-run',
           '--no-zygote',
-          '--single-process',
+          // '--single-process',
 
           '--no-sandbox',
           '--disable-setuid-sandbox',
