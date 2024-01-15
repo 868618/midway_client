@@ -29,7 +29,7 @@ export class WSEStoreService {
 
         args: [
           // '--disable-gpu',
-          '--disable-dev-shm-usage',
+          // '--disable-dev-shm-usage',
           '--no-first-run',
           '--no-zygote',
           // '--single-process',
