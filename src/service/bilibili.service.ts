@@ -16,7 +16,7 @@ export class BilibiService {
   @Inject()
   cache: CacheManager;
 
-  @Inject()
+  // @Inject()
   // wSEStoreService: WSEStoreService;
   async run(resource: string, signal: string) {
     await this.cache.set('jobStatus', 'bili');
